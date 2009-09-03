@@ -32,6 +32,5 @@ object JsonVar extends SessionVar(S.functionLifespan(true){S.buildJsonFunc{
 class CapAjaxCall {
   def render(in: NodeSeq): NodeSeq = Script(
     Function("performAjaxCall", List("param"), JsonVar.is._1("hello", JsVar("param"))) &
-    JsonVar.is._2
-  )
+    JsonVar.is._2)
 }
