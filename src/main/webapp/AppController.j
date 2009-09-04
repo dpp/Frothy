@@ -56,7 +56,7 @@
     input = [CPTextField roundedTextFieldWithStringValue:@"" placeholder:@"Send a message to the server..." width:CGRectGetWidth(bounds) - 145];
 
     [input setFrameOrigin:CGPointMake(10, CGRectGetHeight(bounds) - CGRectGetHeight([input bounds]) - 4)];
-    [input setAutoresizingMask:CPViewWidthSizable | CPViewMaxYMargin];
+    [input setAutoresizingMask:CPViewWidthSizable | CPViewMinYMargin];
 
     [input setTarget:self];
     [input setAction:@selector(send:)];
