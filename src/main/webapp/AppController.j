@@ -11,116 +11,130 @@
 
 @implementation AppController : CPObject
 {
-  CPTextField label;
-  CPTextField input;
-  CPTextField clock;
-  + AppController controllerInstance;
+    MessageView messageView;
+    CPTextField input;
+    CPTextField clock;
+    // + AppController controllerInstance;
 }
 
 - (void)applicationDidFinishLaunching:(CPNotification)aNotification
 {
-  AppController.controllerInstance = self;
-  var theWindow = [[CPWindow alloc] initWithContentRect:CGRectMakeZero() styleMask:CPBorderlessBridgeWindowMask],
-    contentView = [theWindow contentView];
+    AppController.controllerInstance = self;
+    
+    var theWindow = [[CPWindow alloc] initWithContentRect:CGRectMakeZero() styleMask:CPBorderlessBridgeWindowMask],
+        contentView = [theWindow contentView],
+        bounds = [contentView bounds];
 
-  label = [[CPTextField alloc] initWithFrame:CGRectMakeZero()];
+    [contentView setBackgroundColor:[CPColor colorWithWhite:0.85 alpha:1.0]];
 
-  [label setStringValue:@"Hello World!"];
-  [label setFont:[CPFont boldSystemFontOfSize:24.0]];
-  [label setAlignment:CPCenterTextAlignment]; 
-  [label sizeToFit];
+    var scrollView = [[CPScrollView alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(bounds), CGRectGetHeight(bounds) - 40)];
+    
+    [scrollView setHasHorizontalScroller:NO];
 
-  [label setAutoresizingMask:CPViewMinXMargin | CPViewMaxXMargin | CPViewMinYMargin | CPViewMaxYMargin];
-  [label setCenter:[contentView center]];
+    messageView = [[MessageView alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(bounds), 0)];
+    
+    [messageView setAutoresizingMask:CPViewWidthSizable];
+    
+    [scrollView setDocumentView:messageView];
+    
+    [scrollView setAutoresizingMask:CPViewWidthSizable|CPViewHeightSizable];
 
-  [contentView addSubview:label];
+    [contentView addSubview:scrollView];
+    
+    
+    [scrollView setBackgroundColor:[CPColor whiteColor]];
+    [messageView setBackgroundColor:[CPColor whiteColor]];
+    
+    
+    label = [CPTextField labelWithTitle:@"Hello World!"];
+
+    [label setAlignment:CPCenterTextAlignment]; 
+
+    [label setAutoresizingMask:CPViewMinXMargin | CPViewMaxXMargin | CPViewMinYMargin | CPViewMaxYMargin];
+    [label setCenter:[contentView center]];
  
-  input = [[CPTextField alloc] initWithFrame: CGRectMake(
-							 CGRectGetWidth([contentView bounds])/2.0 - 350,
-							 CGRectGetMaxY([label frame]) + 10,
-							 80, 24
-							 )];
+    input = [CPTextField roundedTextFieldWithStringValue:@"" placeholder:@"Send a message to the server..." width:CGRectGetWidth(bounds) - 145];
 
-  [input setStringValue:@"Send me to the server"];
-  [input setFont:[CPFont boldSystemFontOfSize:18.0]];
+    [input setFrameOrigin:CGPointMake(10, CGRectGetHeight(bounds) - CGRectGetHeight([input bounds]) - 4)];
+    [input setAutoresizingMask:CPViewWidthSizable | CPViewMinYMargin];
 
-  [input sizeToFit];
+    [input setTarget:self];
+    [input setAction:@selector(send:)];
+    
+    [contentView addSubview:input];
 
-  [input setAutoresizingMask:CPViewMinXMargin | CPViewMaxXMargin | CPViewMinYMargin | CPViewMaxYMargin];
-  [input setEditable: YES];
-  [input setBezeled: YES];
-
-  [contentView addSubview:input];
-
-  var button = [[CPButton alloc] initWithFrame: CGRectMake(
-							   CGRectGetWidth([contentView bounds])/2.0 - 40,
-							   CGRectGetMaxY([label frame]) + 10,
-							   80, 24
-							   )];
+    var button = [[CPButton alloc] initWithFrame:CGRectMake(CGRectGetWidth(bounds) - 125, CGRectGetHeight(bounds) - 31, 110, 24)];
                           
-  [button setAutoresizingMask:CPViewMinXMargin | 
-	  CPViewMaxXMargin | 
-	  CPViewMinYMargin | 
-	  CPViewMaxYMargin];
+    [button setAutoresizingMask:CPViewMinXMargin | CPViewMinYMargin];
+    [button setTitle:"Send"];
 
-  [button setTitle:"Click Me"];
-
-  [button setTarget:self];
-  [button setAction:@selector(swap:)];                
+    [button setTarget:self];
+    [button setAction:@selector(send:)];                
               
-  [contentView addSubview:button];
+    [contentView addSubview:button];
 
-  clock = [[CPTextField alloc] initWithFrame:CGRectMake(
-							CGRectGetWidth([contentView bounds])/2.0 - 100,
-							CGRectGetMaxY([label frame]) + 40,
-							80, 24
-							)];
+    [theWindow setDefaultButton:button];
 
-  [clock setStringValue:@""];
-  [clock setFont:[CPFont boldSystemFontOfSize:24.0]];
+    clock = [[CPTextField alloc] initWithFrame:CGRectMake(CGRectGetWidth(bounds) - 250 - [CPScroller scrollerWidth], 0, 250, 22)];
 
-  [clock sizeToFit];
+    [clock setFont:[CPFont systemFontOfSize:14.0]];
+    [clock setBackgroundColor:[CPColor colorWithRed:1.0 green:1.0 blue:0.0 alpha:0.3]];
+    [clock setAutoresizingMask:CPViewMinXMargin];
+    [clock setAlignment:CPCenterTextAlignment];
 
-  [clock setAutoresizingMask:CPViewMinXMargin | CPViewMaxXMargin | CPViewMinYMargin | CPViewMaxYMargin];
-  [clock setAlignment:CPCenterTextAlignment];
-  [contentView addSubview:clock];
-
-
-  [theWindow orderFront:self];
-
-  // Uncomment the following line to turn on the standard menu bar.
-  // [CPMenu setMenuBarVisible:YES];
+    [contentView addSubview:clock];
+    
+    [theWindow orderFront:self];
 }
 
-- (void)swap:(id)sender
+- (void)send:(id)sender
 {
-  performAjaxCall([input stringValue]);
-  [input setStringValue: ""];
-
-  if ([label stringValue] == "Hello World!")
-    [label setStringValue:"Goodbye!"];
-  else
-    [label setStringValue:"Hello World!"];
+    performAjaxCall([input stringValue]);
+    [input setStringValue:""];
 }
 
-- (id)buttonCallback:(id)what {
-  [label setStringValue:what];
-  [label sizeToFit];
-  return self;
+- (id)buttonCallback:(id)what 
+{
+    [messageView addMessage:what];
+    [messageView scrollPoint:CGPointMake(0, [messageView frame].size.height)];
+    
+    return self;
 }
 
-- (id)clockCallback:(id)what {
-  [clock setStringValue:what];
-  [clock sizeToFit];
-  return self;
+- (id)clockCallback:(id)what
+{
+    [clock setStringValue:what];
+    return self;
+}
+
+@end
+
+@implementation MessageView : CPView
+{
+    CPArray messages;
+}
+
+- (void)addMessage:(CPString)aMessage
+{
+    [messages addObject:aMessage];
+    
+    var size = [self frame].size;
+    [self setFrameSize:CGSizeMake(size.width, size.height + 30)];
+
+    var label = [[CPTextField alloc] initWithFrame:CGRectMake(5, size.height + 5, size.width - 10, 20)];
+    [label setAutoresizingMask:CPViewWidthSizable];
+    
+    [label setStringValue:aMessage];
+
+    [self addSubview:label];
 }
 
 @end
 
 function ajaxCallback(what) {
-  [AppController.controllerInstance buttonCallback: what];
+  [AppController.controllerInstance buttonCallback:what];
 }
 
 function clockCallback(time) {
-  [AppController.controllerInstance clockCallback: time];
+  [AppController.controllerInstance clockCallback:time];
 }
