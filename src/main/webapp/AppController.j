@@ -27,18 +27,8 @@
 
     [contentView setBackgroundColor:[CPColor colorWithWhite:0.85 alpha:1.0]];
 
-    clock = [[CPTextField alloc] initWithFrame:CGRectMake(CGRectGetWidth(bounds) - 250, 0, 250, 22)];
-
-    [clock setFont:[CPFont systemFontOfSize:14.0]];
-    [clock setBackgroundColor:[CPColor colorWithRed:1.0 green:1.0 blue:0.0 alpha:0.3]];
-    [clock setAutoresizingMask:CPViewMinXMargin];
-    [clock setAlignment:CPCenterTextAlignment];
-
-    [contentView addSubview:clock];
-    
     var scrollView = [[CPScrollView alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(bounds), CGRectGetHeight(bounds) - 40)];
     
-    [scrollView setAutohidesScrollers:YES];
     [scrollView setHasHorizontalScroller:NO];
 
     messageView = [[MessageView alloc] initWithFrame:CGRectMake(0, 0, CGRectGetWidth(bounds), 0)];
@@ -50,6 +40,11 @@
     [scrollView setAutoresizingMask:CPViewWidthSizable|CPViewHeightSizable];
 
     [contentView addSubview:scrollView];
+    
+    
+    [scrollView setBackgroundColor:[CPColor whiteColor]];
+    [messageView setBackgroundColor:[CPColor whiteColor]];
+    
     
     label = [CPTextField labelWithTitle:@"Hello World!"];
 
@@ -80,6 +75,15 @@
 
     [theWindow setDefaultButton:button];
 
+    clock = [[CPTextField alloc] initWithFrame:CGRectMake(CGRectGetWidth(bounds) - 250 - [CPScroller scrollerWidth], 0, 250, 22)];
+
+    [clock setFont:[CPFont systemFontOfSize:14.0]];
+    [clock setBackgroundColor:[CPColor colorWithRed:1.0 green:1.0 blue:0.0 alpha:0.3]];
+    [clock setAutoresizingMask:CPViewMinXMargin];
+    [clock setAlignment:CPCenterTextAlignment];
+
+    [contentView addSubview:clock];
+    
     [theWindow orderFront:self];
 }
 
